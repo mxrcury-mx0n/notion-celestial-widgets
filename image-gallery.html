@@ -1,78 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Celestial Image Gallery</title>
 <style>
-:root{color-scheme:dark;--bg:#11101b;--panel:#1b1929;--line:#39334f;--text:#f1edf9;--muted:#aaa2c2;--accent:#c8a9ff}
-*{box-sizing:border-box}body{margin:0;padding:14px;background:transparent;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-.wrap{max-width:900px;margin:auto;border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(145deg,#211d35,#12111e 75%)}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-h1{font:25px Georgia,serif;font-weight:400;margin:0}.sub{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:.06em}
-button,.upload{border:1px solid #71618f;background:#302744;color:#f5efff;padding:9px 13px;border-radius:999px;font-size:12px;cursor:pointer}
-button:hover,.upload:hover{background:#43345f}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
-.filter{background:#ffffff08;border-color:#ffffff20;color:var(--muted)}.filter.active{background:#403256;color:white;border-color:#9e83cc}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}
-.card{overflow:hidden;border:1px solid #ffffff18;border-radius:14px;background:#ffffff08;position:relative}
-.card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#272238}
-.info{padding:9px 10px}.caption{font:14px Georgia,serif;overflow-wrap:anywhere}.tag{font-size:10px;color:var(--accent);margin-top:4px;letter-spacing:.08em;text-transform:uppercase}
-.remove{position:absolute;top:7px;right:7px;padding:5px 8px;background:#171321dd;border-color:#ffffff44}
-.empty{padding:38px 15px;text-align:center;border:1px dashed #66577e;border-radius:14px;color:var(--muted);font:14px Georgia,serif;grid-column:1/-1}
-.note{font-size:10px;color:#8e86a6;line-height:1.5;margin-top:16px}
-dialog{width:min(420px,calc(100% - 28px));border:1px solid #5c4b78;border-radius:18px;background:#1b1929;color:var(--text);padding:20px}
-dialog::backdrop{background:#080711bb}
-label{display:block;font-size:11px;color:var(--muted);margin:12px 0 5px}
-input,select{width:100%;padding:10px;border-radius:9px;border:1px solid #514466;background:#100f19;color:var(--text)}
-.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-@media(max-width:420px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:13px}h1{font-size:22px}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<header><div><h1>✧ The Inspiration Gallery</h1><div class="sub">A LITTLE COLLECTION OF WORLDS & IDEAS</div></div><button id="addBtn">＋ Add images</button></header>
-<input id="fileInput" type="file" accept="image/*" multiple hidden>
-<div class="toolbar" id="filters">
-<button class="filter active" data-filter="All">All</button>
-<button class="filter" data-filter="Realities">Realities</button>
-<button class="filter" data-filter="Characters">Characters</button>
-<button class="filter" data-filter="Aesthetics">Aesthetics</button>
-<button class="filter" data-filter="Places">Places</button>
-<button class="filter" data-filter="Other">Other</button>
-</div>
-<div class="grid" id="grid"><div class="empty">Your gallery is waiting for its first image.<br>Choose “Add images” to begin ✦</div></div>
-<div class="note">Images are stored in this browser on the device where you add them. They are not uploaded to a shared account, so they may not appear on another device or browser. For a shared gallery, use image links or a hosted image service.</div>
-</div>
-<dialog id="editDialog">
-<h2 style="font:22px Georgia,serif;margin:0">Add to your gallery</h2>
-<label for="caption">Image title</label><input id="caption" maxlength="80" placeholder="e.g. Hogwarts in winter">
-<label for="category">Collection</label><select id="category"><option>Realities</option><option>Characters</option><option>Aesthetics</option><option>Places</option><option>Other</option></select>
-<div class="actions"><button class="filter" id="cancel">Cancel</button><button id="save">Save image</button></div>
-</dialog>
+:root{--bg:#171326;--panel:#211b35;--accent:#b99ae8;--text:#f3edff;--muted:#b8adc9;--line:color-mix(in srgb,var(--accent) 38%,transparent)}
+*{box-sizing:border-box}body{margin:0;padding:18px;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;transition:background .2s,color .2s}
+.wrap{max-width:980px;margin:auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 12px 35px #0002}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.eyebrow{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}h1{font-size:1.2rem;margin:5px 0}
+button,.upload{border:1px solid var(--line);background:transparent;color:var(--text);padding:9px 13px;border-radius:999px;cursor:pointer;font:inherit;font-size:.85rem}button:hover,.upload:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.toolbar button.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:13px}.tile{overflow:hidden;border:1px solid var(--line);border-radius:15px;background:color-mix(in srgb,var(--panel) 65%,var(--bg))}.tile img{display:block;width:100%;height:170px;object-fit:cover}.tile .meta{padding:10px}.caption{font-size:.9rem;overflow-wrap:anywhere}.category{font-size:.72rem;color:var(--muted);margin-top:4px}.remove{margin-top:8px;padding:5px 9px;font-size:.75rem}
+.empty{text-align:center;color:var(--muted);padding:40px 10px;border:1px dashed var(--line);border-radius:15px}
+.add{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:16px}.add input[type=text],.add select{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}.add input[type=text]{flex:1;min-width:140px}.add select{max-width:150px}.add input[type=file]{display:none}
+details{border-top:1px solid var(--line);padding-top:14px;margin-top:18px}summary{cursor:pointer;color:var(--accent);font-weight:600}.pickers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.pickers label{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);background:color-mix(in srgb,var(--panel) 70%,var(--bg));padding:9px 11px;border-radius:12px;font-size:.85rem}.pickers input{width:38px;height:30px;border:0;background:transparent;padding:0;cursor:pointer}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.note{font-size:.72rem;color:var(--muted);margin-top:12px}
+@media(max-width:430px){body{padding:10px}.panel{padding:15px}.pickers{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap"><main class="panel">
+<header><div><div class="eyebrow">The inspiration gallery</div><h1>Collected fragments</h1></div><label class="upload" for="files">＋ Add images</label><input id="files" type="file" accept="image/*" multiple></header>
+<div class="add"><input id="caption" type="text" placeholder="Image caption (optional)"><select id="category"><option>Realities</option><option>Characters</option><option>Aesthetics</option><option>Places</option><option>Other</option></select></div>
+<div class="toolbar" id="filters"></div><div id="gallery" class="grid"></div>
+<details><summary>Customise colours</summary><div class="pickers">
+<label>Background <input type="color" data-var="bg" value="#171326"></label><label>Card <input type="color" data-var="panel" value="#211b35"></label><label>Accent <input type="color" data-var="accent" value="#b99ae8"></label><label>Text <input type="color" data-var="text" value="#f3edff"></label>
+</div><div class="actions"><button id="reset">Reset colours</button><button id="save">Save colours</button></div></details>
+<div class="note">Images are saved in this browser on this device. Keep your original copies elsewhere.</div>
+</main></div>
 <script>
-const DB='celestial-gallery-db',STORE='images';let db,queue=[],pending=null,current='All';
-const $=id=>document.getElementById(id);
-function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB,1);req.onupgradeneeded=()=>req.result.createObjectStore(STORE,{keyPath:'id',autoIncrement:true});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
-function allItems(){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readonly'),r=tx.objectStore(STORE).getAll();r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
-function put(item){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),r=tx.objectStore(STORE).add(item);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
-function del(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),r=tx.objectStore(STORE).delete(id);r.onsuccess=resolve;r.onerror=()=>reject(r.error)})}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function render(){
- const items=await allItems(),shown=current==='All'?items:items.filter(x=>x.category===current),grid=$('grid');grid.innerHTML='';
- if(!shown.length){grid.innerHTML=`<div class="empty">${items.length?'Nothing in this collection yet.':'Your gallery is waiting for its first image.<br>Choose “Add images” to begin ✦'}</div>`;return}
- shown.sort((a,b)=>b.created-a.created).forEach(item=>{
-  const url=URL.createObjectURL(item.blob),card=document.createElement('article');card.className='card';
-  card.innerHTML=`<button class="remove" title="Remove image" aria-label="Remove image">×</button><img alt="${esc(item.caption||'Gallery image')}" src="${url}"><div class="info"><div class="caption">${esc(item.caption||'Untitled')}</div><div class="tag">${esc(item.category)}</div></div>`;
-  card.querySelector('.remove').addEventListener('click',async()=>{if(confirm('Remove this image from your gallery?')){await del(item.id);render()}});
-  grid.appendChild(card);
- });
-}
-$('addBtn').onclick=()=>$('fileInput').click();
-$('fileInput').onchange=e=>{queue=[...e.target.files].filter(f=>f.type.startsWith('image/'));e.target.value='';nextFile()};
-function nextFile(){if(!queue.length){pending=null;return}pending=queue.shift();$('caption').value=pending.name.replace(/\.[^.]+$/,'');$('category').value='Aesthetics';$('editDialog').showModal()}
-$('cancel').onclick=()=>{$('editDialog').close();nextFile()};
-$('save').onclick=async()=>{if(!pending)return;await put({blob:pending,caption:$('caption').value.trim(),category:$('category').value,created:Date.now()});$('editDialog').close();await render();nextFile()};
-document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');current=b.dataset.filter;render()}));
-openDB().then(x=>{db=x;render()}).catch(()=>{$('grid').innerHTML='<div class="empty">Your browser could not open local image storage. Try opening this page in a regular browser tab.</div>'});
-</script>
-</body></html>
+const defaults={bg:"#171326",panel:"#211b35",accent:"#b99ae8",text:"#f3edff"},root=document.documentElement;
+let theme={...defaults};try{theme={...defaults,...JSON.parse(localStorage.getItem("celestial-gallery-theme")||"{}")}}catch{}
+function applyTheme(){Object.entries(defaults).forEach(([k,v])=>root.style.setProperty("--"+k,theme[k]||v));document.querySelectorAll("[data-var]").forEach(i=>i.value=theme[i.dataset.var]||defaults[i.dataset.var])}
+applyTheme();document.querySelectorAll("[data-var]").forEach(i=>i.addEventListener("input",()=>{theme[i.dataset.var]=i.value;root.style.setProperty("--"+i.dataset.var,i.value)}));
+document.getElementById("save").onclick=()=>localStorage.setItem("celestial-gallery-theme",JSON.stringify(theme));
+document.getElementById("reset").onclick=()=>{theme={...defaults};applyTheme();localStorage.setItem("celestial-gallery-theme",JSON.stringify(theme))};
+const DB="celestial-image-gallery-v2",STORE="images";let db,items=[],filter="All";
+function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB,1);req.onupgradeneeded=()=>req.result.createObjectStore(STORE,{keyPath:"id",autoIncrement:true});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+function request(mode,fn){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,mode),store=tx.objectStore(STORE),req=fn(store);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function refresh(){items=await request("readonly",s=>s.getAll());render()}
+const categories=["All","Realities","Characters","Aesthetics","Places","Other"];
+function renderFilters(){const el=document.getElementById("filters");el.innerHTML="";categories.forEach(c=>{const b=document.createElement("button");b.textContent=c;b.className=filter===c?"active":"";b.onclick=()=>{filter=c;render()};el.append(b)})}
+function render(){renderFilters();const el=document.getElementById("gallery");el.innerHTML="";const shown=items.filter(x=>filter==="All"||x.category===filter);if(!shown.length){el.className="";el.innerHTML='<div class="empty">Your gallery is waiting for its first image.</div>';return}el.className="grid";shown.forEach(item=>{const tile=document.createElement("article");tile.className="tile";const img=document.createElement("img");img.src=URL.createObjectURL(item.blob);img.alt=item.caption||item.category;const meta=document.createElement("div");meta.className="meta";const cap=document.createElement("div");cap.className="caption";cap.textContent=item.caption||"Untitled";const cat=document.createElement("div");cat.className="category";cat.textContent=item.category;const del=document.createElement("button");del.className="remove";del.textContent="Remove";del.onclick=async()=>{await request("readwrite",s=>s.delete(item.id));refresh()};meta.append(cap,cat,del);tile.append(img,meta);el.append(tile)})}
+document.getElementById("files").addEventListener("change",async e=>{for(const file of e.target.files){if(!file.type.startsWith("image/"))continue;await request("readwrite",s=>s.add({blob:file,caption:document.getElementById("caption").value.trim(),category:document.getElementById("category").value,created:Date.now()}))}e.target.value="";document.getElementById("caption").value="";await refresh()});
+openDB().then(async x=>{db=x;await refresh()}).catch(()=>{document.getElementById("gallery").innerHTML='<div class="empty">Your browser could not open local image storage. Try a current version of Chrome or Firefox.</div>'});
+</script></body></html>
