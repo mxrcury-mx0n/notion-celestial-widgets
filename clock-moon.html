@@ -24,6 +24,8 @@ summary{cursor:pointer;color:var(--accent);font-weight:600}
 .pickers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
 label{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:.85rem;background:color-mix(in srgb,var(--panel) 70%,var(--bg));padding:9px 11px;border-radius:12px}
 input[type=color]{width:38px;height:30px;border:0;background:transparent;padding:0;cursor:pointer}
+.hex-wrap{display:flex;align-items:center;gap:6px}
+input[type=text].hex{width:88px;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 7px;font: .8rem ui-monospace,monospace;text-transform:uppercase}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 button{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:8px 13px;cursor:pointer}
 button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
@@ -46,11 +48,11 @@ button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accen
   </div>
   <div class="controls"><details><summary>Customise colours</summary>
     <div class="pickers">
-      <label>Background <input type="color" data-var="bg" value="#171326"></label>
-      <label>Card <input type="color" data-var="panel" value="#211b35"></label>
-      <label>Accent <input type="color" data-var="accent" value="#b99ae8"></label>
-      <label>Text <input type="color" data-var="text" value="#f3edff"></label>
-      <label>Moon <input type="color" data-var="moon" value="#e8dcff"></label>
+      <label>Background <span class="hex-wrap"><input type="color" data-var="bg" value="#171326"><input class="hex" type="text" data-hex="bg" value="#171326" maxlength="7" spellcheck="false" aria-label="Background hex code"></span></label>
+      <label>Card <span class="hex-wrap"><input type="color" data-var="panel" value="#211b35"><input class="hex" type="text" data-hex="panel" value="#211b35" maxlength="7" spellcheck="false" aria-label="Card hex code"></span></label>
+      <label>Accent <span class="hex-wrap"><input type="color" data-var="accent" value="#b99ae8"><input class="hex" type="text" data-hex="accent" value="#b99ae8" maxlength="7" spellcheck="false" aria-label="Accent hex code"></span></label>
+      <label>Text <span class="hex-wrap"><input type="color" data-var="text" value="#f3edff"><input class="hex" type="text" data-hex="text" value="#f3edff" maxlength="7" spellcheck="false" aria-label="Text hex code"></span></label>
+      <label>Moon <span class="hex-wrap"><input type="color" data-var="moon" value="#e8dcff"><input class="hex" type="text" data-hex="moon" value="#e8dcff" maxlength="7" spellcheck="false" aria-label="Moon hex code"></span></label>
     </div><div class="actions"><button id="reset">Reset colours</button><button id="save">Save colours</button></div>
   </details></div>
   <div class="note">Moon phase and illumination are approximate.</div>
@@ -58,7 +60,7 @@ button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accen
 <script>
 const defaults={bg:"#171326",panel:"#211b35",accent:"#b99ae8",text:"#f3edff",moon:"#e8dcff"};
 const root=document.documentElement;
-function applyTheme(theme){Object.entries(defaults).forEach(([k,v])=>root.style.setProperty("--"+k,theme[k]||v));document.querySelectorAll("[data-var]").forEach(i=>i.value=theme[i.dataset.var]||defaults[i.dataset.var]);}
+function applyTheme(theme){Object.entries(defaults).forEach(([k,v])=>root.style.setProperty("--"+k,theme[k]||v));document.querySelectorAll("[data-var]").forEach(i=>i.value=theme[i.dataset.var]||defaults[i.dataset.var]);document.querySelectorAll("[data-hex]").forEach(i=>i.value=(theme[i.dataset.hex]||defaults[i.dataset.hex]).toUpperCase());}
 let theme={...defaults};try{theme={...defaults,...JSON.parse(localStorage.getItem("celestial-clock-theme")||"{}")}}catch{}
 applyTheme(theme);
 document.querySelectorAll("[data-var]").forEach(i=>i.addEventListener("input",()=>{theme[i.dataset.var]=i.value;root.style.setProperty("--"+i.dataset.var,i.value)}));
