@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Celestial Clock</title>
+<style>
+:root{color-scheme:dark;--bg:#11101b;--panel:#1b1929;--line:#39334f;--text:#f1edf9;--muted:#aaa2c2;--accent:#c8a9ff;--gold:#e5c98a}
+*{box-sizing:border-box}body{margin:0;padding:18px;background:transparent;color:var(--text);font-family:Georgia,"Times New Roman",serif}
+.wrap{max-width:720px;margin:auto;border:1px solid var(--line);border-radius:22px;padding:clamp(18px,4vw,30px);background:linear-gradient(145deg,#211d35,#12111e 72%);box-shadow:0 12px 35px #0005}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font:11px/1.4 system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:7px;box-shadow:0 0 10px var(--gold)}
+.time{font:clamp(48px,11vw,82px)/1.05 system-ui,sans-serif;letter-spacing:-.065em;margin:24px 0 4px;font-weight:300}
+.date{font:14px system-ui,sans-serif;color:var(--muted);letter-spacing:.04em}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:25px 0}
+.moonrow{display:flex;align-items:center;gap:20px}
+.moon{width:82px;height:82px;flex:none;filter:drop-shadow(0 0 16px #c8a9ff55)}
+h2{font-size:22px;font-weight:400;margin:0 0 7px}.phase{font:13px system-ui,sans-serif;color:var(--accent)}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.tile{padding:13px 15px;background:#ffffff08;border:1px solid #ffffff12;border-radius:13px}
+.label{font:10px system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.value{font:16px system-ui,sans-serif}
+.foot{text-align:center;color:#8f87a8;font:10px system-ui,sans-serif;letter-spacing:.12em;margin-top:22px}
+@media(max-width:420px){.top{font-size:9px}.details{gap:8px}.tile{padding:11px}.moon{width:68px;height:68px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span><i class="dot"></i>THE CELESTIAL DESK</span><span>EUROPE / LONDON</span></div>
+  <div class="time" id="time">--:--:--</div>
+  <div class="date" id="date">Loading date…</div>
+  <div class="rule"></div>
+  <div class="moonrow">
+    <svg class="moon" viewBox="0 0 100 100" aria-label="Current moon phase"><defs><radialGradient id="glow"><stop stop-color="#f8eac7"/><stop offset="1" stop-color="#b9a6df"/></radialGradient><clipPath id="disc"><circle cx="50" cy="50" r="39"/></clipPath></defs><circle cx="50" cy="50" r="39" fill="#302a43" stroke="#a99acb" stroke-width="1.5"/><g id="moonShade" clip-path="url(#disc)"><circle cx="50" cy="50" r="39" fill="url(#glow)"/><path id="shadow" fill="#211d30" d=""/></g><circle cx="50" cy="50" r="39" fill="none" stroke="#d8c9f5" stroke-opacity=".5"/></svg>
+    <div><h2 id="phaseName">The moon tonight</h2><div class="phase" id="phaseText">Calculating lunar phase…</div></div>
+  </div>
+  <div class="details">
+    <div class="tile"><div class="label">Illumination</div><div class="value" id="illum">—</div></div>
+    <div class="tile"><div class="label">Lunar age</div><div class="value" id="age">—</div></div>
+  </div>
+  <div class="foot">A LITTLE WINDOW INTO THE NIGHT SKY ✦</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const tz='Europe/London';
+function tick(){
+ const now=new Date();
+ $('time').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);
+ $('date').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(now);
+}
+function lunar(date){
+ const synodic=29.530588853;
+ const knownNewMoon=Date.UTC(2000,0,6,18,14);
+ const days=(date.getTime()-knownNewMoon)/86400000;
+ const age=((days%synodic)+synodic)%synodic;
+ const fraction=age/synodic;
+ const illumination=(1-Math.cos(2*Math.PI*fraction))/2;
+ let name;
+ if(age<1.85||age>27.68)name='New Moon';
+ else if(age<5.54)name='Waxing Crescent';
+ else if(age<9.22)name='First Quarter';
+ else if(age<12.91)name='Waxing Gibbous';
+ else if(age<16.61)name='Full Moon';
+ else if(age<20.30)name='Waning Gibbous';
+ else if(age<23.99)name='Last Quarter';
+ else name='Waning Crescent';
+ return {age,fraction,illumination,name};
+}
+function drawMoon(m){
+ const r=39,cx=50,cy=50;
+ // Terminator ellipse approximates the illuminated portion; waxing lights from the right.
+ const waxing=m.fraction<.5;
+ const k=Math.cos(2*Math.PI*m.fraction);
+ let d;
+ if(m.illumination<.001)d=`M 50 11 A 39 39 0 1 0 50 89 A 39 39 0 1 0 50 11`;
+ else if(m.illumination>.999)d='';
+ else {
+   const rx=Math.abs(k)*r;
+   const sweep=waxing?1:0;
+   const outerSweep=1;
+   // Draw the dark portion; the bright base disc remains beneath it.
+   if(waxing){
+     d=`M 50 11 A 39 39 0 0 0 50 89 A ${Math.max(1,rx)} 39 0 0 ${k>=0?0:1} 50 11 Z`;
+   }else{
+     d=`M 50 11 A 39 39 0 0 1 50 89 A ${Math.max(1,rx)} 39 0 0 ${k>=0?1:0} 50 11 Z`;
+   }
+ }
+ $('shadow').setAttribute('d',d);
+}
+function updateMoon(){
+ const m=lunar(new Date());
+ $('phaseName').textContent=m.name;
+ $('phaseText').textContent='Current lunar phase';
+ $('illum').textContent=Math.round(m.illumination*100)+'%';
+ $('age').textContent=m.age.toFixed(1)+' days';
+ drawMoon(m);
+}
+tick();updateMoon();setInterval(tick,1000);setInterval(updateMoon,60000);
+</script>
+</body></html>
