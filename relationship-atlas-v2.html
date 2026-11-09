@@ -11,6 +11,19 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid
 .appearance-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.appearance-grid .field{margin:0}.appearance-grid label{font-size:11px}.appearance-grid select{width:100%;background:#0c1020;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:9px;min-width:0}.appearance-note{font-size:11px;color:var(--muted);margin:10px 0 0}.node{transition:border-radius .18s,background .18s,border-color .18s,width .18s,min-height .18s}.node.shape-circle{width:126px;min-height:126px;border-radius:50%;display:flex;flex-direction:column;justify-content:center;padding:12px}.node.shape-square{border-radius:8px}.node.shape-pill{border-radius:28px}.node.size-compact{width:104px;min-height:72px;padding:8px}.node.size-large{width:150px;min-height:104px;padding:14px}.node.palette-type{background:linear-gradient(145deg,var(--node-a),var(--node-b));border-color:var(--node-border)}.node.palette-unified{background:linear-gradient(145deg,var(--node-a),var(--node-b));border-color:var(--node-border)}.node .orb{background:var(--node-orb,linear-gradient(145deg,#c4b2ff,#679caa))}.edge{stroke-linecap:round}.edge.style-dashed{stroke-dasharray:8 6}.edge.style-dotted{stroke-dasharray:2 7;stroke-linecap:round}.edge-label.hidden-label{display:none}.canvas.labels-off .edge-label{display:none}
 @media(max-width:900px){.workspace{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.canvas{height:560px}}
 @media(max-width:560px){.app{padding:14px}.top{align-items:flex-start;flex-direction:column}.stats{gap:7px}.stat{padding:11px}.stat b{font-size:20px}.side{grid-template-columns:1fr}.canvas{height:500px}.node{width:112px;min-height:80px;padding:10px 7px}}
+
+.navbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;padding:8px;background:#101426cc;border:1px solid var(--line);border-radius:15px}
+.nav-btn{background:transparent;border-color:transparent;color:var(--muted);padding:9px 14px}
+.nav-btn.active{background:#292747;border-color:#625b91;color:var(--text)}
+.view{margin-bottom:18px}.view-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.archive-card{background:linear-gradient(145deg,#151a30,#101426);border:1px solid var(--line);border-radius:15px;padding:15px;min-width:0}
+.archive-card h3{font-size:15px;margin:0 0 5px}.archive-card p{color:var(--muted);font-size:12px;margin:5px 0}
+.archive-card .card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 13px}
+.section-heading h2{font-size:19px;margin:0}.muted-copy{color:var(--muted);font-size:13px}
+.quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:560px){.navbar{gap:4px}.nav-btn{padding:8px 10px;font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -20,13 +33,20 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid
     <div class="top-actions"><button class="quiet" id="syncBtn">↻ Sync Notion</button><button class="quiet" id="importBtn">Import JSON</button><button class="quiet" id="exportBtn">Export backup</button><button class="primary" id="addCharacterBtn">＋ Character</button></div>
   </header>
   <p class="intro">A visual map of the people, bonds and complicated histories in your realities. Move characters around and explore the connections in your archive.</p>
+
+  <nav class="navbar" aria-label="Atlas navigation">
+    <button class="nav-btn active" data-view="home">⌂ Home</button>
+    <button class="nav-btn" data-view="map">✧ Relationship map</button>
+    <button class="nav-btn" data-view="characters">♙ Characters</button>
+    <button class="nav-btn" data-view="relationships">↔ Relationships</button>
+  </nav>
   <div id="syncStatus" class="sync-status" role="status" aria-live="polite">Notion sync has not run yet.</div>
   <section class="stats">
     <div class="stat"><b id="characterCount">0</b><span>Characters on the map</span></div>
     <div class="stat"><b id="relationshipCount">0</b><span>Connections</span></div>
     <div class="stat"><b id="typeCount">0</b><span>Relationship types used</span></div>
   </section>
-  <div class="workspace">
+  <div class="workspace" id="workspace">
     <main class="panel">
       <div class="panel-head"><h2>✧ Connection map</h2><div class="tools"><input id="search" placeholder="Find a character…" aria-label="Search characters"><select id="filter"><option value="all">All connections</option><option>Romantic</option><option>Friendship</option><option>Family</option><option>Rivalry</option><option>Enemies</option><option>Complicated</option><option>Polyamorous</option></select></div></div>
       <div class="canvas" id="canvas"><svg id="edges" aria-hidden="true"></svg><div id="nodes"></div><div class="empty" id="empty">Your map is ready for its first connections.<br>Use <b>＋ Character</b> to add people, then create links between them.</div></div>
@@ -38,6 +58,26 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid
       <section class="panel"><h3>Workspace notes</h3><div class="detail-empty">Characters and connections are read from Notion. This Atlas is read-only for archive data: edit records in Notion, then choose Sync Notion. Map positions are saved locally in this browser. Export a JSON backup before clearing browser data or switching devices.</div></section>
     </aside>
   </div>
+
+  <section id="homeView" class="view">
+    <div class="section-heading"><div><div class="eyebrow">Your archive at a glance</div><h2>Welcome to your Relationship Atlas</h2></div></div>
+    <p class="muted-copy">A central space for your characters, their connections and the stories between them.</p>
+    <div class="view-grid" style="margin-top:14px">
+      <article class="archive-card"><div class="eyebrow">Character archive</div><h3 id="homeCharacterCount">0 characters</h3><p>Browse everyone currently synced into your Atlas.</p><button data-nav="characters">Open characters</button></article>
+      <article class="archive-card"><div class="eyebrow">Relationship archive</div><h3 id="homeRelationshipCount">0 relationships</h3><p>Explore the bonds, dynamics and story phases.</p><button data-nav="relationships">Open relationships</button></article>
+      <article class="archive-card"><div class="eyebrow">Visual workspace</div><h3>Relationship map</h3><p>See how your characters connect and arrange the map.</p><button data-nav="map">Open map</button></article>
+    </div>
+    <div class="panel" style="margin-top:14px"><div class="section-heading"><h2>Characters in your archive</h2><button data-nav="characters">View all</button></div><div id="homeRecent" class="view-grid"><p class="muted-copy">Your characters will appear here after syncing.</p></div></div>
+    <div class="quick-actions"><button class="primary" data-nav="map">Explore relationship map</button><button id="homeSyncBtn">↻ Sync Notion</button></div>
+  </section>
+  <section id="charactersView" class="view hidden">
+    <div class="section-heading"><div><div class="eyebrow">Central archive</div><h2>Characters</h2><p class="muted-copy">Every character currently available in your Atlas.</p></div><input id="characterArchiveSearch" placeholder="Search characters…" aria-label="Search character archive" style="max-width:220px;background:#0c1020;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px"></div>
+    <div id="characterArchive" class="view-grid"></div>
+  </section>
+  <section id="relationshipsView" class="view hidden">
+    <div class="section-heading"><div><div class="eyebrow">Central archive</div><h2>Relationships</h2><p class="muted-copy">Browse the connections and story phases in your archive.</p></div><select id="relationshipArchiveFilter" style="max-width:190px;background:#0c1020;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px"><option value="all">All types</option><option>Romantic</option><option>Friendship</option><option>Family</option><option>Rivalry</option><option>Enemies</option><option>Complicated</option><option>Polyamorous</option></select></div>
+    <div id="relationshipArchive" class="view-grid"></div>
+  </section>
   <div class="footer">Made for your shifting archive · Your data stays in this browser unless you export it</div>
 </div>
 
@@ -90,7 +130,7 @@ function applyAppearance(){
 }
 const seed={version:1,characters:[{id:"sebastian-beaumont",name:"Sebastian Beaumont",subtitle:"Existing Character Index entry",description:"Imported from the Notion Character Index.",x:50,y:48,notionUrl:"https://app.notion.com/p/41148662e9318053bf06e4d3fe57a4f9"}],relationships:[]};
 const NOTION_API_URL="https://relationship-atlas-api.profiona458.workers.dev/api/atlas";
-let data=load(),selected=null,editCharacterId=null,editRelationshipId=null,drag=null,notionConnected=false;
+let data=load(),selected=null,editCharacterId=null,editRelationshipId=null,drag=null,notionConnected=false,activeView="home";
 function load(){try{const raw=localStorage.getItem("celestial-relationship-atlas-v2");return raw?normalise(JSON.parse(raw)):structuredClone(seed)}catch{return structuredClone(seed)}}
 function normalise(d){return{version:1,characters:Array.isArray(d.characters)?d.characters:[],relationships:Array.isArray(d.relationships)?d.relationships:[]}}
 function save(){localStorage.setItem("celestial-relationship-atlas-v2",JSON.stringify(data))}
@@ -153,6 +193,35 @@ const $=id=>document.getElementById(id),canvas=$("canvas");
 function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function color(t){return TYPES[t]||TYPES.Complicated}
 function visibleRelationships(){const q=$("search").value.trim().toLowerCase(),f=$("filter").value;return data.relationships.filter(r=>(f==="all"||r.type===f)&&(!q||data.characters.some(c=>(r.people||[]).includes(c.id)&&c.name.toLowerCase().includes(q))))}
+
+function showView(view){
+  activeView=view;
+  $("workspace").classList.toggle("hidden",view!=="map");
+  $("homeView").classList.toggle("hidden",view!=="home");
+  $("charactersView").classList.toggle("hidden",view!=="characters");
+  $("relationshipsView").classList.toggle("hidden",view!=="relationships");
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  if(view==="map")render();
+}
+function renderArchives(){
+  const chars=data.characters||[],rels=data.relationships||[];
+  $("homeCharacterCount").textContent=chars.length+" character"+(chars.length===1?"":"s");
+  $("homeRelationshipCount").textContent=rels.length+" relationship"+(rels.length===1?"":"s");
+  $("homeRecent").innerHTML=chars.slice(-4).reverse().map(c=>`<article class="archive-card"><h3>${esc(c.name)}</h3><p>${esc(c.subtitle||"Character")}</p><button data-open-character="${esc(c.id)}">View on map</button></article>`).join("")||'<p class="muted-copy">No characters yet. Sync your Notion archive to get started.</p>';
+  const cq=($("characterArchiveSearch")?.value||"").trim().toLowerCase();
+  const filteredChars=chars.filter(c=>c.name.toLowerCase().includes(cq));
+  $("characterArchive").innerHTML=filteredChars.map(c=>{
+    const count=rels.filter(r=>(r.people||[]).includes(c.id)).length;
+    return `<article class="archive-card"><h3>${esc(c.name)}</h3><p>${esc(c.subtitle||"Character")}</p><p>${count} connection${count===1?"":"s"}</p><div class="card-actions"><button data-open-character="${esc(c.id)}">Open on map</button></div></article>`;
+  }).join("")||'<p class="muted-copy">No matching characters found.</p>';
+  const rf=$("relationshipArchiveFilter")?.value||"all";
+  const filteredRels=rels.filter(r=>rf==="all"||r.type===rf);
+  $("relationshipArchive").innerHTML=filteredRels.map(r=>{
+    const names=(r.people||[]).map(id=>chars.find(c=>c.id===id)?.name||"Unknown");
+    return `<article class="archive-card"><h3>${esc(r.name||r.type||"Relationship")}</h3><p>${esc(names.join(" ↔ "))}</p><p>${esc(r.type||"Unspecified")} · ${esc(r.phase||"Unspecified phase")}</p></article>`;
+  }).join("")||'<p class="muted-copy">No relationships in this category yet.</p>';
+}
+
 function render(){
  const q=$("search").value.trim().toLowerCase(),rels=visibleRelationships();
  const visible=data.characters.filter(c=>!q||c.name.toLowerCase().includes(q));
@@ -167,7 +236,7 @@ function render(){
    return `<div class="node shape-${esc(appearance.shape)} size-${esc(appearance.size)} palette-${esc(appearance.nodeColours)} ${selected===c.id?"selected":""}" data-id="${esc(c.id)}" style="left:${c.x??50}%;top:${c.y??50}%;--node-a:${nodeA};--node-b:${nodeB};--node-border:${nodeBorder};--node-orb:${palette.orb}"><div class="orb">${esc(c.name.trim().charAt(0).toUpperCase())}</div><strong>${esc(c.name)}</strong><small>${esc(c.subtitle||"Character")}</small></div>`;
   }).join("");
  $("legend").innerHTML=Object.entries(TYPES).map(([n,col])=>`<span><i class="dot" style="background:${col}"></i>${n}</span>`).join("");
- renderEdges(visible,rels);renderDetail();renderRelationships(rels);bindNodes();
+ renderEdges(visible,rels);renderDetail();renderRelationships(rels);bindNodes();renderArchives();
 }
 function renderEdges(visible,rels){
  const svg=$("edges"),w=canvas.clientWidth,h=canvas.clientHeight;svg.setAttribute("viewBox",`0 0 ${w} ${h}`);
@@ -193,6 +262,17 @@ $("characterForm").onsubmit=e=>{e.preventDefault();const name=$("charName").valu
 $("relationshipForm").onsubmit=e=>{e.preventDefault();const a=$("relA").value,b=$("relB").value;if(a===b){alert("Choose two different characters.");return}const r=data.relationships.find(x=>x.id===editRelationshipId)||{id:"r-"+Date.now().toString(36)};Object.assign(r,{name:$("relName").value.trim(),people:[a,b],type:$("relType").value,phase:$("relPhase").value,notes:$("relNotes").value.trim()});if(!data.relationships.some(x=>x.id===r.id))data.relationships.push(r);save();$("relationshipModal").classList.remove("open");render()};
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal-backdrop").classList.remove("open"));
 $("search").oninput=render;$("filter").onchange=render;
+
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>showView(b.dataset.nav));
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-open-character]");
+  if(b){selected=b.dataset.openCharacter;showView("map");render();}
+});
+$("homeSyncBtn").onclick=syncFromNotion;
+$("characterArchiveSearch").oninput=renderArchives;
+$("relationshipArchiveFilter").onchange=renderArchives;
+
  const appearanceControls=["themeSelect","nodeShape","nodeSize","nodeColours","lineStyle","lineWidth","showLabels"];
  appearanceControls.forEach(id=>$(id).addEventListener("change",()=>{
    appearance={...appearance,
@@ -203,7 +283,7 @@ $("search").oninput=render;$("filter").onchange=render;
  }));
 $("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="relationship-atlas-backup.json";a.click();URL.revokeObjectURL(url)};
 $("importBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const incoming=normalise(JSON.parse(await f.text()));if(!Array.isArray(incoming.characters)||!Array.isArray(incoming.relationships))throw Error();if(confirm(`Replace this Atlas with ${incoming.characters.length} characters and ${incoming.relationships.length} connections? Export a backup first if you want to keep the current map.`)){data=incoming;selected=null;save();render()}}catch{alert("That file doesn't look like a valid Relationship Atlas JSON backup.")}e.target.value=""};
-window.addEventListener("resize",()=>render());applyAppearance();render();
+window.addEventListener("resize",()=>render());applyAppearance();render();showView("home");
 if(data.source==="notion")setSyncStatus("Showing your last saved Notion sync. Checking for updates…","loading");
 syncFromNotion();
 })();
